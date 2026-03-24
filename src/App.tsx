@@ -524,7 +524,7 @@ export default function App() {
                 </div>
                 <div className="space-y-1">
                   <h1 className="text-3xl font-bold text-gray-900">Complaint Ready for Submission</h1>
-                  <p className="text-gray-600">We've mapped your grievance to the relevant ASCI Code chapters.</p>
+                  <p className="text-gray-600">You framed the ASCI code right, which is awesome. I have drafted the rest of the complaint fields for you. Please review.</p>
                 </div>
               </div>
 
