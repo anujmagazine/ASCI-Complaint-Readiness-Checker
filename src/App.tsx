@@ -598,12 +598,6 @@ export default function App() {
                   
                   <div className="space-y-4 pt-4 border-t border-gray-200">
                     <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Options</p>
-                    <button 
-                      onClick={() => setStep('check2')}
-                      className="w-full text-left text-sm font-semibold text-[#D32F2F] hover:underline flex items-center gap-2"
-                    >
-                      <MessageSquare className="w-4 h-4" /> Add additional context
-                    </button>
                     <button onClick={reset} className="w-full text-left text-sm font-semibold text-gray-500 hover:underline flex items-center gap-2">
                       <RefreshCcw className="w-4 h-4" /> Start New Complaint
                     </button>
