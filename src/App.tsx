@@ -405,7 +405,10 @@ export default function App() {
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-bold uppercase tracking-wider">
                   <HelpCircle className="w-3 h-3" /> More Information Needed
                 </div>
-                <h1 className="text-3xl font-bold text-gray-900">Help us understand better</h1>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  This request is within scope but ambiguous...
+                </h1>
+                <h2 className="text-2xl font-bold text-gray-800">Help us understand better</h2>
                 <p className="text-gray-600">To process your complaint effectively, we need a few more details.</p>
               </div>
 
