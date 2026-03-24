@@ -52,14 +52,13 @@ const INITIAL_DATA: ComplaintData = {
 };
 
 const ASCI_LOGO = (
-  <div className="flex items-center gap-1 font-bold text-2xl tracking-tighter">
-    <span style={{ color: COLORS.green }}>A</span>
-    <span style={{ color: COLORS.red }}>S</span>
-    <span style={{ color: COLORS.yellow }}>C</span>
-    <span style={{ color: COLORS.blue }}>I</span>
-    <div className="ml-2 text-[10px] leading-tight font-normal text-gray-600 uppercase tracking-widest">
-      The Advertising<br />Standards Council of India
-    </div>
+  <div className="flex items-center">
+    <img 
+      src="input_file_0.png" 
+      alt="ASCI Logo" 
+      className="h-16 w-auto object-contain"
+      referrerPolicy="no-referrer"
+    />
   </div>
 );
 
