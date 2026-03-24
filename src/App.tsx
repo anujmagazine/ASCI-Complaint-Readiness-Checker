@@ -66,17 +66,6 @@ const INITIAL_DATA: ComplaintData = {
   followUpQuestions: [],
 };
 
-const ASCI_LOGO = (
-  <div className="flex items-center">
-    <img 
-      src="input_file_4.png" 
-      alt="ASCI Logo" 
-      className="h-16 w-auto object-contain"
-      referrerPolicy="no-referrer"
-    />
-  </div>
-);
-
 export default function App() {
   const [step, setStep] = useState<Step>('input');
   const [data, setData] = useState<ComplaintData>(INITIAL_DATA);
@@ -698,21 +687,13 @@ export default function App() {
       {/* Footer */}
       <footer className="bg-white border-t border-gray-200 mt-24">
         <div className="max-w-4xl mx-auto px-6 py-12">
-          <div className="grid md:grid-cols-2 gap-12">
-            <div className="space-y-4">
-              {ASCI_LOGO}
-              <p className="text-sm text-gray-500 max-w-xs leading-relaxed">
-                The Advertising Standards Council of India is a self-regulatory voluntary organization of the advertising industry in India.
-              </p>
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+            <div className="flex gap-6">
+              <a href="#" className="text-gray-400 hover:text-[#00A651] transition-colors"><MessageSquare /></a>
+              <a href="#" className="text-gray-400 hover:text-[#00A651] transition-colors"><ShieldCheck /></a>
+              <a href="#" className="text-gray-400 hover:text-[#00A651] transition-colors"><FileText /></a>
             </div>
-            <div className="flex flex-col md:items-end gap-4">
-              <div className="flex gap-6">
-                <a href="#" className="text-gray-400 hover:text-[#00A651] transition-colors"><MessageSquare /></a>
-                <a href="#" className="text-gray-400 hover:text-[#00A651] transition-colors"><ShieldCheck /></a>
-                <a href="#" className="text-gray-400 hover:text-[#00A651] transition-colors"><FileText /></a>
-              </div>
-              <p className="text-xs text-gray-400">© 2026 ASCI. All rights reserved.</p>
-            </div>
+            <p className="text-xs text-gray-400">© 2026 AI&Beyond. All rights reserved.</p>
           </div>
         </div>
       </footer>
