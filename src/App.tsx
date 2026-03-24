@@ -52,6 +52,7 @@ interface ComplaintData {
   mappedChapter?: string;
   isAdScope: boolean;
   isAmbiguous: boolean;
+  userCodeCorrect: boolean;
   followUpQuestions: string[];
   formFields?: FormFields;
 }
@@ -61,6 +62,7 @@ const INITIAL_DATA: ComplaintData = {
   followUpAnswers: [],
   isAdScope: false,
   isAmbiguous: false,
+  userCodeCorrect: false,
   followUpQuestions: [],
 };
 
@@ -230,6 +232,7 @@ export default function App() {
           "title": "Full Chapter Title",
           "mappingExplanation": "Briefly explain which specific clause (e.g., 1.4 or 3.1b) applies based on the grievance.",
           "summary": "A professional translation of the user's grievance into regulatory language (e.g., 'Exaggerated health claims likely to mislead consumers regarding product efficacy').",
+          "userCodeCorrect": boolean, // Set to true if the user's original complaint already correctly identified the ASCI Chapter (e.g. they mentioned Chapter I or Truthful Representation correctly).
           "formFields": {
             "advertiserCompany": "Name of the company responsible for the ad",
             "brandName": "Name of the brand being advertised",
@@ -264,6 +267,7 @@ export default function App() {
         ...prev, 
         mappedChapter: `${result.chapter}: ${result.title}`,
         mappedCode: result.summary,
+        userCodeCorrect: result.userCodeCorrect || false,
         formFields: result.formFields
       }));
       setStep('summary');
@@ -524,7 +528,11 @@ export default function App() {
                 </div>
                 <div className="space-y-1">
                   <h1 className="text-3xl font-bold text-gray-900">Complaint Ready for Submission</h1>
-                  <p className="text-gray-600">You framed the ASCI code right, which is awesome. I have drafted the rest of the complaint fields for you. Please review.</p>
+                  <p className="text-gray-600">
+                    {data.userCodeCorrect 
+                      ? "You framed the ASCI code right, which is awesome. I have drafted the rest of the complaint fields for you. Please review."
+                      : "ASCI Code was incorrect. I have corrected the code and drafted the rest of the complaint fields for you. Please review."}
+                  </p>
                 </div>
               </div>
 
