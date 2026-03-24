@@ -16,7 +16,9 @@ import {
   FileText,
   MessageSquare,
   RefreshCcw,
-  Info
+  Info,
+  Copy,
+  Check
 } from 'lucide-react';
 import { GoogleGenAI } from "@google/genai";
 import { cn } from './lib/utils';
@@ -30,6 +32,17 @@ const COLORS = {
 
 type Step = 'input' | 'check1' | 'check2' | 'check3' | 'summary' | 'success' | 'scope-fail';
 
+interface FormFields {
+  advertiserCompany: string;
+  brandName: string;
+  productName: string;
+  productCategory: string;
+  adSpot: string;
+  adDate: string;
+  adDescription: string;
+  objectionableClaims: string;
+}
+
 interface ComplaintData {
   adImage?: string;
   adText?: string;
@@ -40,6 +53,7 @@ interface ComplaintData {
   isAdScope: boolean;
   isAmbiguous: boolean;
   followUpQuestions: string[];
+  formFields?: FormFields;
 }
 
 const INITIAL_DATA: ComplaintData = {
@@ -200,7 +214,7 @@ export default function App() {
       const finalGrievance = clarifiedGrievance || data.grievance;
       const model = "gemini-3-flash-preview";
       const prompt = `
-        Map this advertising complaint to the official ASCI Code chapters.
+        Map this advertising complaint to the official ASCI Code chapters and generate data for the official ASCI complaint form.
         
         ASCI Chapters:
         - Chapter I: Truthful & Honest Representation (Misleading claims, exaggerated benefits, lack of substantiation, deceptive pricing)
@@ -215,13 +229,33 @@ export default function App() {
           "chapter": "Chapter X",
           "title": "Full Chapter Title",
           "mappingExplanation": "Briefly explain which specific clause (e.g., 1.4 or 3.1b) applies based on the grievance.",
-          "summary": "A professional translation of the user's grievance into regulatory language (e.g., 'Exaggerated health claims likely to mislead consumers regarding product efficacy')."
+          "summary": "A professional translation of the user's grievance into regulatory language (e.g., 'Exaggerated health claims likely to mislead consumers regarding product efficacy').",
+          "formFields": {
+            "advertiserCompany": "Name of the company responsible for the ad",
+            "brandName": "Name of the brand being advertised",
+            "productName": "Specific product name",
+            "productCategory": "Category (e.g., Food & Beverage, Healthcare, Education)",
+            "adSpot": "Where the ad was seen (e.g., Social Media, TV, Newspaper)",
+            "adDate": "Estimated date seen (use current date if unknown)",
+            "adDescription": "A brief, neutral description of the advertisement's content and visuals.",
+            "objectionableClaims": "Specific claims or visual frames that are objectionable, translated into formal language."
+          }
         }
       `;
 
+      const parts: any[] = [{ text: prompt }];
+      if (data.adImage) {
+        parts.push({
+          inlineData: {
+            mimeType: "image/jpeg",
+            data: data.adImage.split(',')[1]
+          }
+        });
+      }
+
       const response = await ai.models.generateContent({
         model,
-        contents: [{ parts: [{ text: prompt }] }],
+        contents: [{ parts }],
         config: { responseMimeType: "application/json" }
       });
 
@@ -229,7 +263,8 @@ export default function App() {
       setData(prev => ({ 
         ...prev, 
         mappedChapter: `${result.chapter}: ${result.title}`,
-        mappedCode: result.summary 
+        mappedCode: result.summary,
+        formFields: result.formFields
       }));
       setStep('summary');
     } catch (err) {
@@ -252,6 +287,31 @@ export default function App() {
     setStep('input');
     setData(INITIAL_DATA);
     setError(null);
+  };
+
+  const CopyField = ({ label, value }: { label: string, value: string }) => {
+    const [copied, setCopied] = useState(false);
+    const handleCopy = () => {
+      navigator.clipboard.writeText(value);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    };
+    return (
+      <div className="space-y-1 group">
+        <div className="flex justify-between items-center">
+          <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">{label}</label>
+          <button 
+            onClick={handleCopy}
+            className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 text-[10px] font-bold text-[#005EB8] hover:text-[#00A651]"
+          >
+            {copied ? <><Check className="w-3 h-3" /> Copied</> : <><Copy className="w-3 h-3" /> Copy</>}
+          </button>
+        </div>
+        <div className="p-3 bg-gray-50 rounded-lg border border-gray-100 text-sm text-gray-700 font-medium break-words">
+          {value || "N/A"}
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -485,6 +545,32 @@ export default function App() {
                       </div>
                     </div>
                   </div>
+
+                  {data.formFields && (
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                      <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                        <span className="text-sm font-bold uppercase tracking-wider text-gray-500">ASCI Form Data (Copy-Paste)</span>
+                        <div className="flex items-center gap-2 text-xs text-gray-400">
+                          <Info className="w-4 h-4" />
+                          <span>Use these fields for the official form</span>
+                        </div>
+                      </div>
+                      <div className="p-6 space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <CopyField label="Advertiser's Company" value={data.formFields.advertiserCompany} />
+                          <CopyField label="Brand Name" value={data.formFields.brandName} />
+                          <CopyField label="Product Name" value={data.formFields.productName} />
+                          <CopyField label="Product Category" value={data.formFields.productCategory} />
+                          <CopyField label="Where seen" value={data.formFields.adSpot} />
+                          <CopyField label="Date seen" value={data.formFields.adDate} />
+                        </div>
+                        <div className="space-y-4 pt-4 border-t border-gray-100">
+                          <CopyField label="Describe the Advertisement" value={data.formFields.adDescription} />
+                          <CopyField label="Objectionable Claims/Visuals" value={data.formFields.objectionableClaims} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-6">
