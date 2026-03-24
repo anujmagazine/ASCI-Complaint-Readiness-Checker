@@ -53,7 +53,7 @@ const INITIAL_DATA: ComplaintData = {
 const ASCI_LOGO = (
   <div className="flex items-center">
     <img 
-      src="input_file_2.png" 
+      src="input_file_4.png" 
       alt="ASCI Logo" 
       className="h-16 w-auto object-contain"
       referrerPolicy="no-referrer"
