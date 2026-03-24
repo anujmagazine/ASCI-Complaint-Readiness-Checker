@@ -28,7 +28,7 @@ const COLORS = {
   accent: '#005EB8',
 };
 
-type Step = 'input' | 'check1' | 'check2' | 'check3' | 'summary' | 'success';
+type Step = 'input' | 'check1' | 'check2' | 'check3' | 'summary' | 'success' | 'scope-fail';
 
 interface ComplaintData {
   adImage?: string;
@@ -127,6 +127,7 @@ export default function App() {
       
       if (!result.isAdScope) {
         setError(result.explanation + " " + result.guidance);
+        setStep('scope-fail');
         setLoading(false);
       } else {
         await runCheck2();
@@ -548,6 +549,56 @@ export default function App() {
               >
                 File Another Complaint
               </button>
+            </motion.div>
+          )}
+
+          {/* Step 5: Scope Failure Page */}
+          {step === 'scope-fail' && (
+            <motion.div
+              key="scope-fail"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-8"
+            >
+              <div className="bg-red-50 border border-red-200 rounded-2xl p-8 md:p-12 space-y-6 shadow-sm">
+                <div className="flex items-center gap-4 text-red-600">
+                  <AlertCircle className="w-10 h-10" />
+                  <h1 className="text-3xl font-bold text-red-900">Scope check failed</h1>
+                </div>
+                
+                <div className="space-y-4">
+                  <p className="text-xl text-red-800 leading-relaxed">
+                    {error}
+                  </p>
+                </div>
+
+                <div className="pt-6 flex flex-col sm:flex-row gap-4 border-t border-red-200">
+                  <a 
+                    href="https://gama.gov.in" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex-1 bg-red-600 text-white py-4 px-6 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-red-700 transition-all shadow-md"
+                  >
+                    Visit GAMA Portal <ExternalLink className="w-5 h-5" />
+                  </a>
+                  <button 
+                    onClick={reset}
+                    className="flex-1 bg-white text-gray-700 border border-gray-200 py-4 px-6 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-gray-50 transition-all"
+                  >
+                    <RefreshCcw className="w-5 h-5" /> Try another complaint
+                  </button>
+                </div>
+                
+                <div className="text-center">
+                  <button 
+                    onClick={() => setStep('input')}
+                    className="text-red-700 hover:text-red-900 font-semibold underline underline-offset-4"
+                  >
+                    Go back to main page
+                  </button>
+                </div>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
