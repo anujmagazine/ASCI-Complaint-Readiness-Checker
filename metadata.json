@@ -1,0 +1,5 @@
+{
+  "name": "ASCI Complaint Assistant",
+  "description": "A smart guide for filing advertising complaints with the Advertising Standards Council of India, featuring scope filtering, ambiguity flagging, and code mapping.",
+  "requestFramePermissions": []
+}
