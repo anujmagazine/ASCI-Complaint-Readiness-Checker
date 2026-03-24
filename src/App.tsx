@@ -302,7 +302,7 @@ export default function App() {
             >
               <div className="space-y-2">
                 <h1 className="text-4xl font-bold tracking-tight text-gray-900">
-                  File an Advertising Complaint
+                  ASCI Complaint Readiness Checker
                 </h1>
                 <p className="text-lg text-gray-600 max-w-2xl">
                   Our AI assistant will guide you through the process to ensure your complaint is correctly framed and directed.
