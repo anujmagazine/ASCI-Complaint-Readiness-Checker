@@ -255,18 +255,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#F5F5F5] font-sans text-gray-900">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
-          {ASCI_LOGO}
-          <div className="hidden md:flex gap-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
-            <span>Self-Regulation</span>
-            <span>•</span>
-            <span>Consumer Protection</span>
-          </div>
-        </div>
-      </header>
-
       <main className="max-w-4xl mx-auto px-6 py-12">
         <AnimatePresence mode="wait">
           {loading && (
