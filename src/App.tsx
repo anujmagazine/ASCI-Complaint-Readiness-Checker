@@ -23,10 +23,9 @@ import { cn } from './lib/utils';
 
 // Brand Colors
 const COLORS = {
-  green: '#00A69C',
-  red: '#E93E4D',
-  yellow: '#F8A428',
-  blue: '#008BCB',
+  primary: '#D32F2F',
+  secondary: '#00A651',
+  accent: '#005EB8',
 };
 
 type Step = 'input' | 'check1' | 'check2' | 'check3' | 'summary' | 'success';
@@ -54,7 +53,7 @@ const INITIAL_DATA: ComplaintData = {
 const ASCI_LOGO = (
   <div className="flex items-center">
     <img 
-      src="input_file_0.png" 
+      src="input_file_2.png" 
       alt="ASCI Logo" 
       className="h-16 w-auto object-contain"
       referrerPolicy="no-referrer"
@@ -278,7 +277,7 @@ export default function App() {
               className="fixed inset-0 bg-white/80 backdrop-blur-sm z-[100] flex flex-col items-center justify-center gap-6"
             >
               <div className="relative">
-                <RefreshCcw className="w-16 h-16 text-[#00A69C] animate-spin" />
+                <RefreshCcw className="w-16 h-16 text-[#D32F2F] animate-spin" />
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="w-8 h-8 bg-white rounded-full" />
                 </div>
@@ -318,7 +317,7 @@ export default function App() {
                     onClick={() => fileInputRef.current?.click()}
                     className={cn(
                       "relative border-2 border-dashed rounded-xl p-12 flex flex-col items-center justify-center gap-4 cursor-pointer transition-all",
-                      data.adImage ? "border-emerald-500 bg-emerald-50" : "border-gray-300 hover:border-gray-400 hover:bg-gray-50"
+                      data.adImage ? "border-[#00A651] bg-[#00A651]/5" : "border-gray-300 hover:border-[#00A651] hover:bg-gray-50"
                     )}
                   >
                     <input 
@@ -338,7 +337,7 @@ export default function App() {
                     ) : (
                       <>
                         <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
-                          <Upload className="text-gray-400 w-8 h-8" />
+                          <Upload className="text-[#00A651] w-8 h-8" />
                         </div>
                         <div className="text-center">
                           <p className="font-medium">Click to upload or drag and drop</p>
@@ -358,14 +357,14 @@ export default function App() {
                     value={data.grievance}
                     onChange={(e) => setData(prev => ({ ...prev, grievance: e.target.value }))}
                     placeholder="E.g., This health drink ad claims it cures baldness in 10 days, but that's impossible..."
-                    className="w-full min-h-[160px] p-4 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#00A69C] focus:border-transparent transition-all resize-none text-lg"
+                    className="w-full min-h-[160px] p-4 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#005EB8] focus:border-transparent transition-all resize-none text-lg"
                   />
                 </div>
 
                 <button
                   disabled={!data.grievance || loading}
                   onClick={runCheck1}
-                  className="w-full bg-[#00A69C] text-white py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2 hover:bg-[#008c84] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-emerald-100"
+                  className="w-full bg-[#D32F2F] text-white py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2 hover:bg-[#00A651] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-red-100"
                 >
                   {loading ? (
                     <RefreshCcw className="animate-spin w-6 h-6" />
@@ -431,7 +430,7 @@ export default function App() {
                         newAnswers[i] = e.target.value;
                         setData(prev => ({ ...prev, followUpAnswers: newAnswers }));
                       }}
-                      className="w-full p-4 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#00A69C] transition-all min-h-[100px]"
+                      className="w-full p-4 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#005EB8] transition-all min-h-[100px]"
                       placeholder="Your answer..."
                     />
                   </div>
@@ -450,7 +449,7 @@ export default function App() {
                       const clarified = `Original: ${data.grievance}\n\nClarifications:\n${data.followUpQuestions.map((q, i) => `${q}: ${data.followUpAnswers[i]}`).join('\n')}`;
                       runCheck3(clarified);
                     }}
-                    className="flex-[2] bg-[#00A69C] text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-[#008c84] transition-all"
+                    className="flex-[2] bg-[#D32F2F] text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-[#00A651] transition-all"
                   >
                     {loading ? <RefreshCcw className="animate-spin w-6 h-6" /> : "Finalize Complaint"}
                   </button>
@@ -497,13 +496,13 @@ export default function App() {
                 </div>
 
                 <div className="space-y-6">
-                  <div className="bg-[#00A69C] rounded-2xl p-6 text-white space-y-4 shadow-lg shadow-emerald-100">
-                    <div className="flex items-center gap-2 text-emerald-100 text-xs font-bold uppercase tracking-widest">
+                  <div className="bg-[#D32F2F] rounded-2xl p-6 text-white space-y-4 shadow-lg shadow-red-100">
+                    <div className="flex items-center gap-2 text-red-100 text-xs font-bold uppercase tracking-widest">
                       <Info className="w-4 h-4" /> ASCI Code Mapping
                     </div>
                     <div className="space-y-1">
                       <h2 className="text-2xl font-bold">{data.mappedChapter}</h2>
-                      <p className="text-emerald-50 opacity-90 text-sm">Truthful & Honest Representation</p>
+                      <p className="text-red-50 opacity-90 text-sm">Truthful & Honest Representation</p>
                     </div>
                     <div className="pt-4 border-t border-white/20">
                       <p className="text-xs leading-relaxed opacity-80">
@@ -514,7 +513,7 @@ export default function App() {
 
                   <button 
                     onClick={handleSubmit}
-                    className="w-full bg-gray-900 text-white py-4 rounded-xl font-bold hover:bg-black transition-all flex items-center justify-center gap-2"
+                    className="w-full bg-gray-900 text-white py-4 rounded-xl font-bold hover:bg-[#00A651] transition-all flex items-center justify-center gap-2"
                   >
                     Submit as Mapped <Send className="w-5 h-5" />
                   </button>
@@ -523,7 +522,7 @@ export default function App() {
                     <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Options</p>
                     <button 
                       onClick={() => setStep('check2')}
-                      className="w-full text-left text-sm font-semibold text-[#00A69C] hover:underline flex items-center gap-2"
+                      className="w-full text-left text-sm font-semibold text-[#D32F2F] hover:underline flex items-center gap-2"
                     >
                       <MessageSquare className="w-4 h-4" /> Add additional context
                     </button>
@@ -553,11 +552,11 @@ export default function App() {
               </div>
               <div className="bg-white rounded-2xl p-8 border border-gray-200 max-w-md mx-auto shadow-sm">
                 <p className="text-sm text-gray-500 mb-4 uppercase tracking-widest font-bold">Reference Number</p>
-                <p className="text-3xl font-mono font-bold text-[#00A69C]">ASCI-{Math.floor(Math.random() * 1000000)}</p>
+                <p className="text-3xl font-mono font-bold text-[#D32F2F]">ASCI-{Math.floor(Math.random() * 1000000)}</p>
               </div>
               <button 
                 onClick={reset}
-                className="bg-gray-900 text-white px-8 py-4 rounded-xl font-bold hover:bg-black transition-all"
+                className="bg-gray-900 text-white px-8 py-4 rounded-xl font-bold hover:bg-[#00A651] transition-all"
               >
                 File Another Complaint
               </button>
@@ -578,9 +577,9 @@ export default function App() {
             </div>
             <div className="flex flex-col md:items-end gap-4">
               <div className="flex gap-6">
-                <a href="#" className="text-gray-400 hover:text-[#00A69C] transition-colors"><MessageSquare /></a>
-                <a href="#" className="text-gray-400 hover:text-[#00A69C] transition-colors"><ShieldCheck /></a>
-                <a href="#" className="text-gray-400 hover:text-[#00A69C] transition-colors"><FileText /></a>
+                <a href="#" className="text-gray-400 hover:text-[#00A651] transition-colors"><MessageSquare /></a>
+                <a href="#" className="text-gray-400 hover:text-[#00A651] transition-colors"><ShieldCheck /></a>
+                <a href="#" className="text-gray-400 hover:text-[#00A651] transition-colors"><FileText /></a>
               </div>
               <p className="text-xs text-gray-400">© 2026 ASCI. All rights reserved.</p>
             </div>
