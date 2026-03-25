@@ -518,9 +518,13 @@ export default function App() {
                 <div className="space-y-1">
                   <h1 className="text-3xl font-bold text-gray-900">Complaint Ready for Submission</h1>
                   <p className="text-gray-600">
-                    {data.userCodeCorrect 
-                      ? "You framed the ASCI code right, which is awesome. I have drafted the rest of the complaint fields for you. Please review."
-                      : "ASCI Code was incorrect. I have corrected the code and drafted the rest of the complaint fields for you. Please review."}
+                    {data.userCodeCorrect ? (
+                      data.followUpAnswers.length > 0 
+                        ? "Thank you for providing additional details. You framed the ASCI code right, which is awesome. I have drafted the rest of the complaint fields for you. Please review."
+                        : "You framed the ASCI code right, which is awesome. I have drafted the rest of the complaint fields for you. Please review."
+                    ) : (
+                      "ASCI Code was incorrect. I have corrected the code and drafted the rest of the complaint fields for you. Please review."
+                    )}
                   </p>
                 </div>
               </div>
