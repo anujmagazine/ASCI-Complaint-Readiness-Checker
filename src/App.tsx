@@ -345,7 +345,7 @@ export default function App() {
                   ASCI Complaint Readiness Checker
                 </h1>
                 <p className="text-lg text-gray-600 max-w-2xl">
-                  Our AI assistant will guide you through the process to ensure your complaint is correctly framed and directed.
+                  An AI assistant that ensures every case reaching a human caseworker in the TARA system is in-scope, clearly articulated, and pre-mapped to the relevant ASCI Code.
                 </p>
               </div>
 
