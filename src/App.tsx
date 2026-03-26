@@ -81,6 +81,8 @@ export default function App() {
     }
     return false;
   });
+  const [explanation, setExplanation] = useState<string | null>(null);
+  const [isExplaining, setIsExplaining] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('asci-dark-mode', JSON.stringify(darkMode));
@@ -299,6 +301,38 @@ export default function App() {
     setStep('input');
     setData(INITIAL_DATA);
     setError(null);
+    setExplanation(null);
+    setIsExplaining(false);
+  };
+
+  const getExplanation = async () => {
+    setIsExplaining(true);
+    try {
+      const model = "gemini-3-flash-preview";
+      const prompt = `
+        You are an ASCI (Advertising Standards Council of India) expert.
+        The user has a grievance: "${data.grievance}"
+        You have mapped it to the following ASCI Code/Chapter: "${data.mappedChapter}"
+        Regulatory Translation: "${data.mappedCode}"
+
+        Explain why this specific chapter/clause was chosen. 
+        Cite specific parts of the user's grievance to justify the mapping.
+        Be concise but thorough. Use professional language.
+        Format the response in clear paragraphs.
+      `;
+
+      const response = await ai.models.generateContent({
+        model,
+        contents: prompt,
+      });
+
+      setExplanation(response.text || "Could not generate explanation.");
+    } catch (err) {
+      console.error(err);
+      setExplanation("Error generating explanation.");
+    } finally {
+      setIsExplaining(false);
+    }
   };
 
   const CopyField = ({ label, value }: { label: string, value: string }) => {
@@ -831,8 +865,17 @@ export default function App() {
                     "rounded-2xl p-6 text-white space-y-4 shadow-lg transition-all",
                     darkMode ? "bg-red-900/40 border border-red-900/50 shadow-red-950/50" : "bg-[#D32F2F] shadow-red-100"
                   )}>
-                    <div className="flex items-center gap-2 text-red-100 text-xs font-bold uppercase tracking-widest">
-                      <Info className="w-4 h-4" /> ASCI Code Mapping
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-red-100 text-xs font-bold uppercase tracking-widest">
+                        <Info className="w-4 h-4" /> ASCI Code Mapping
+                      </div>
+                      <button 
+                        onClick={getExplanation}
+                        disabled={isExplaining}
+                        className="text-[10px] bg-white/20 hover:bg-white/30 px-2 py-1 rounded uppercase font-bold tracking-wider transition-colors disabled:opacity-50"
+                      >
+                        {isExplaining ? 'Thinking...' : 'Explain Why'}
+                      </button>
                     </div>
                     <div className="space-y-1">
                       <h2 className="text-2xl font-bold">{data.mappedChapter}</h2>
@@ -844,6 +887,27 @@ export default function App() {
                       </p>
                     </div>
                   </div>
+
+                  {explanation && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className={cn(
+                        "rounded-2xl p-6 border transition-colors",
+                        darkMode ? "bg-gray-900 border-gray-800 text-gray-300" : "bg-white border-gray-200 text-gray-700"
+                      )}
+                    >
+                      <h4 className="font-bold mb-3 flex items-center gap-2">
+                        <MessageSquare className="w-4 h-4 text-[#D32F2F]" />
+                        Why this mapping?
+                      </h4>
+                      <div className="text-sm space-y-3 leading-relaxed">
+                        {explanation.split('\n').map((para, i) => (
+                          <p key={i}>{para}</p>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
 
                   <button 
                     onClick={handleSubmit}
