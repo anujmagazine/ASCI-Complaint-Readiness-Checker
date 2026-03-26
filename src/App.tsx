@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Upload, 
@@ -18,7 +18,9 @@ import {
   RefreshCcw,
   Info,
   Copy,
-  Check
+  Check,
+  Moon,
+  Sun
 } from 'lucide-react';
 import { GoogleGenAI } from "@google/genai";
 import { cn } from './lib/utils';
@@ -72,6 +74,23 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("Analyzing...");
   const [error, setError] = useState<string | null>(null);
+  const [darkMode, setDarkMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('asci-dark-mode');
+      return saved ? JSON.parse(saved) : false;
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('asci-dark-mode', JSON.stringify(darkMode));
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
@@ -292,15 +311,26 @@ export default function App() {
     return (
       <div className="space-y-1 group">
         <div className="flex justify-between items-center">
-          <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">{label}</label>
+          <label className={cn(
+            "text-[10px] font-bold uppercase tracking-widest",
+            darkMode ? "text-gray-600" : "text-gray-400"
+          )}>{label}</label>
           <button 
             onClick={handleCopy}
-            className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 text-[10px] font-bold text-[#005EB8] hover:text-[#00A651]"
+            className={cn(
+              "opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 text-[10px] font-bold",
+              darkMode ? "text-blue-400 hover:text-emerald-400" : "text-[#005EB8] hover:text-[#00A651]"
+            )}
           >
             {copied ? <><Check className="w-3 h-3" /> Copied</> : <><Copy className="w-3 h-3" /> Copy</>}
           </button>
         </div>
-        <div className="p-3 bg-gray-50 rounded-lg border border-gray-100 text-sm text-gray-700 font-medium break-words">
+        <div className={cn(
+          "p-3 rounded-lg border text-sm font-medium break-words transition-colors",
+          darkMode 
+            ? "bg-gray-800/50 border-gray-800 text-gray-300" 
+            : "bg-gray-50 border-gray-100 text-gray-700"
+        )}>
           {value || "N/A"}
         </div>
       </div>
@@ -330,7 +360,10 @@ export default function App() {
       <div className="mb-12">
         <div className="flex items-center justify-between relative">
           {/* Background Line */}
-          <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-200 -translate-y-1/2 z-0" />
+          <div className={cn(
+            "absolute top-1/2 left-0 w-full h-0.5 -translate-y-1/2 z-0",
+            darkMode ? "bg-gray-800" : "bg-gray-200"
+          )} />
           
           {/* Active Line */}
           <motion.div 
@@ -348,13 +381,13 @@ export default function App() {
                 <motion.div 
                   initial={false}
                   animate={{ 
-                    backgroundColor: isCompleted || isActive ? '#D32F2F' : '#FFFFFF',
-                    borderColor: isCompleted || isActive ? '#D32F2F' : '#E5E7EB',
+                    backgroundColor: isCompleted || isActive ? '#D32F2F' : (darkMode ? '#111827' : '#FFFFFF'),
+                    borderColor: isCompleted || isActive ? '#D32F2F' : (darkMode ? '#1F2937' : '#E5E7EB'),
                     scale: isActive ? 1.2 : 1
                   }}
                   className={cn(
                     "w-10 h-10 rounded-full border-2 flex items-center justify-center transition-colors duration-300 shadow-sm",
-                    isActive ? "ring-4 ring-red-50" : ""
+                    isActive ? (darkMode ? "ring-4 ring-red-900/30" : "ring-4 ring-red-50") : ""
                   )}
                 >
                   {isCompleted ? (
@@ -362,7 +395,7 @@ export default function App() {
                   ) : (
                     <span className={cn(
                       "text-sm font-bold",
-                      isActive ? "text-white" : "text-gray-400"
+                      isActive ? "text-white" : (darkMode ? "text-gray-600" : "text-gray-400")
                     )}>
                       {i + 1}
                     </span>
@@ -370,7 +403,7 @@ export default function App() {
                 </motion.div>
                 <span className={cn(
                   "text-xs font-bold uppercase tracking-wider",
-                  isActive ? "text-[#D32F2F]" : isCompleted ? "text-gray-600" : "text-gray-400"
+                  isActive ? "text-[#D32F2F]" : isCompleted ? (darkMode ? "text-gray-400" : "text-gray-600") : (darkMode ? "text-gray-600" : "text-gray-400")
                 )}>
                   {s.label}
                 </span>
@@ -383,8 +416,25 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F5F5] font-sans text-gray-900">
+    <div className={cn(
+      "min-h-screen font-sans transition-colors duration-300",
+      darkMode ? "bg-gray-950 text-gray-100 dark" : "bg-[#F5F5F5] text-gray-900"
+    )}>
       <main className="max-w-4xl mx-auto px-6 py-12">
+        <div className="flex justify-end mb-6">
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            className={cn(
+              "p-3 rounded-full transition-all duration-300 shadow-sm border",
+              darkMode 
+                ? "bg-gray-900 border-gray-800 text-yellow-400 hover:bg-gray-800" 
+                : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
+            )}
+            aria-label="Toggle Dark Mode"
+          >
+            {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          </button>
+        </div>
         <ProgressBar />
         <AnimatePresence mode="wait">
           {loading && (
@@ -392,17 +442,29 @@ export default function App() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-white/80 backdrop-blur-sm z-[100] flex flex-col items-center justify-center gap-6"
+              className={cn(
+                "fixed inset-0 backdrop-blur-sm z-[100] flex flex-col items-center justify-center gap-6",
+                darkMode ? "bg-gray-950/80" : "bg-white/80"
+              )}
             >
               <div className="relative">
                 <RefreshCcw className="w-16 h-16 text-[#D32F2F] animate-spin" />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-8 h-8 bg-white rounded-full" />
+                  <div className={cn(
+                    "w-8 h-8 rounded-full",
+                    darkMode ? "bg-gray-950" : "bg-white"
+                  )} />
                 </div>
               </div>
               <div className="text-center space-y-2">
-                <p className="text-xl font-bold text-gray-900">{loadingMessage}</p>
-                <p className="text-gray-500 animate-pulse">Our AI is processing the ASCI guidelines...</p>
+                <p className={cn(
+                  "text-xl font-bold",
+                  darkMode ? "text-gray-100" : "text-gray-900"
+                )}>{loadingMessage}</p>
+                <p className={cn(
+                  "animate-pulse",
+                  darkMode ? "text-gray-400" : "text-gray-500"
+                )}>Our AI is processing the ASCI guidelines...</p>
               </div>
             </motion.div>
           )}
@@ -417,25 +479,39 @@ export default function App() {
               className="space-y-8"
             >
               <div className="space-y-2">
-                <h1 className="text-4xl font-bold tracking-tight text-gray-900">
+                <h1 className={cn(
+                  "text-4xl font-bold tracking-tight",
+                  darkMode ? "text-gray-100" : "text-gray-900"
+                )}>
                   ASCI Complaint Readiness Checker
                 </h1>
-                <p className="text-lg text-gray-600 max-w-2xl">
+                <p className={cn(
+                  "text-lg max-w-2xl",
+                  darkMode ? "text-gray-400" : "text-gray-600"
+                )}>
                   An AI assistant that ensures every case reaching a human caseworker in the TARA system is in-scope, clearly articulated, and pre-mapped to the relevant ASCI Code.
                 </p>
               </div>
 
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 space-y-8">
+              <div className={cn(
+                "rounded-2xl shadow-sm border p-8 space-y-8 transition-colors duration-300",
+                darkMode ? "bg-gray-900 border-gray-800" : "bg-white border-gray-200"
+              )}>
                 {/* Upload Section */}
                 <div className="space-y-4">
-                  <label className="block text-sm font-semibold uppercase tracking-wider text-gray-500">
+                  <label className={cn(
+                    "block text-sm font-semibold uppercase tracking-wider",
+                    darkMode ? "text-gray-500" : "text-gray-500"
+                  )}>
                     1. Upload Advertisement (Image/Video/Screenshot)
                   </label>
                   <div 
                     onClick={() => fileInputRef.current?.click()}
                     className={cn(
                       "relative border-2 border-dashed rounded-xl p-12 flex flex-col items-center justify-center gap-4 cursor-pointer transition-all",
-                      data.adImage ? "border-[#00A651] bg-[#00A651]/5" : "border-gray-300 hover:border-[#00A651] hover:bg-gray-50"
+                      data.adImage 
+                        ? (darkMode ? "border-[#00A651] bg-[#00A651]/10" : "border-[#00A651] bg-[#00A651]/5") 
+                        : (darkMode ? "border-gray-800 hover:border-[#00A651] hover:bg-gray-800/50" : "border-gray-300 hover:border-[#00A651] hover:bg-gray-50")
                     )}
                   >
                     <input 
@@ -454,12 +530,21 @@ export default function App() {
                       </div>
                     ) : (
                       <>
-                        <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
+                        <div className={cn(
+                          "w-16 h-16 rounded-full flex items-center justify-center",
+                          darkMode ? "bg-gray-800" : "bg-gray-100"
+                        )}>
                           <Upload className="text-[#00A651] w-8 h-8" />
                         </div>
                         <div className="text-center">
-                          <p className="font-medium">Click to upload or drag and drop</p>
-                          <p className="text-sm text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                          <p className={cn(
+                            "font-medium",
+                            darkMode ? "text-gray-200" : "text-gray-900"
+                          )}>Click to upload or drag and drop</p>
+                          <p className={cn(
+                            "text-sm",
+                            darkMode ? "text-gray-500" : "text-gray-500"
+                          )}>PNG, JPG, GIF up to 10MB</p>
                         </div>
                       </>
                     )}
@@ -468,14 +553,22 @@ export default function App() {
 
                 {/* Grievance Section */}
                 <div className="space-y-4">
-                  <label className="block text-sm font-semibold uppercase tracking-wider text-gray-500">
+                  <label className={cn(
+                    "block text-sm font-semibold uppercase tracking-wider",
+                    darkMode ? "text-gray-500" : "text-gray-500"
+                  )}>
                     2. Describe your grievance
                   </label>
                   <textarea
                     value={data.grievance}
                     onChange={(e) => setData(prev => ({ ...prev, grievance: e.target.value }))}
                     placeholder="E.g., This health drink ad claims it cures baldness in 10 days, but that's impossible..."
-                    className="w-full min-h-[160px] p-4 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#005EB8] focus:border-transparent transition-all resize-none text-lg"
+                    className={cn(
+                      "w-full min-h-[160px] p-4 rounded-xl border focus:ring-2 focus:ring-[#005EB8] focus:border-transparent transition-all resize-none text-lg",
+                      darkMode 
+                        ? "bg-gray-800 border-gray-700 text-gray-100 placeholder-gray-600" 
+                        : "bg-white border-gray-200 text-gray-900 placeholder-gray-400"
+                    )}
                   />
                 </div>
 
@@ -498,21 +591,36 @@ export default function App() {
                 <motion.div 
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="bg-red-50 border border-red-200 rounded-xl p-6 flex gap-4 items-start"
+                  className={cn(
+                    "rounded-xl p-6 flex gap-4 items-start border transition-colors",
+                    darkMode ? "bg-red-950/20 border-red-900/50" : "bg-red-50 border-red-200"
+                  )}
                 >
                   <AlertCircle className="text-red-500 w-6 h-6 shrink-0 mt-0.5" />
                   <div className="space-y-3">
-                    <p className="text-red-800 font-medium">{error}</p>
+                    <p className={cn(
+                      "font-medium",
+                      darkMode ? "text-red-400" : "text-red-800"
+                    )}>{error}</p>
                     <div className="flex gap-4">
                       <a 
                         href="https://gama.gov.in" 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="text-red-700 underline font-bold flex items-center gap-1 hover:text-red-900"
+                        className={cn(
+                          "underline font-bold flex items-center gap-1 transition-colors",
+                          darkMode ? "text-red-400 hover:text-red-300" : "text-red-700 hover:text-red-900"
+                        )}
                       >
                         Visit GAMA Portal <ExternalLink className="w-4 h-4" />
                       </a>
-                      <button onClick={reset} className="text-gray-500 hover:text-gray-700 text-sm font-medium">
+                      <button 
+                        onClick={reset} 
+                        className={cn(
+                          "text-sm font-medium transition-colors",
+                          darkMode ? "text-gray-500 hover:text-gray-400" : "text-gray-500 hover:text-gray-700"
+                        )}
+                      >
                         Try another complaint
                       </button>
                     </div>
@@ -531,27 +639,50 @@ export default function App() {
               className="space-y-8"
             >
               <div className="space-y-2">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-bold uppercase tracking-wider">
+                <div className={cn(
+                  "inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition-colors",
+                  darkMode ? "bg-amber-900/30 text-amber-500" : "bg-amber-100 text-amber-700"
+                )}>
                   <HelpCircle className="w-3 h-3" /> More Information Needed
                 </div>
-                <h1 className="text-3xl font-bold text-gray-900">
+                <h1 className={cn(
+                  "text-3xl font-bold",
+                  darkMode ? "text-gray-100" : "text-gray-900"
+                )}>
                   This request is within scope but ambiguous...
                 </h1>
-                <h2 className="text-2xl font-bold text-gray-800">Help us understand better</h2>
-                <p className="text-gray-600">To process your complaint effectively, we need a few more details.</p>
+                <h2 className={cn(
+                  "text-2xl font-bold",
+                  darkMode ? "text-gray-300" : "text-gray-800"
+                )}>Help us understand better</h2>
+                <p className={cn(
+                  "text-gray-600",
+                  darkMode ? "text-gray-400" : "text-gray-600"
+                )}>To process your complaint effectively, we need a few more details.</p>
               </div>
 
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 space-y-8">
+              <div className={cn(
+                "rounded-2xl shadow-sm border p-8 space-y-8 transition-colors",
+                darkMode ? "bg-gray-900 border-gray-800" : "bg-white border-gray-200"
+              )}>
                 {data.followUpQuestions.map((q, i) => (
                   <div key={i} className="space-y-4">
-                    <label className="block font-semibold text-gray-800">{q}</label>
+                    <label className={cn(
+                      "block font-semibold",
+                      darkMode ? "text-gray-200" : "text-gray-800"
+                    )}>{q}</label>
                     <textarea
                       onChange={(e) => {
                         const newAnswers = [...data.followUpAnswers];
                         newAnswers[i] = e.target.value;
                         setData(prev => ({ ...prev, followUpAnswers: newAnswers }));
                       }}
-                      className="w-full p-4 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#005EB8] transition-all min-h-[100px]"
+                      className={cn(
+                        "w-full p-4 rounded-xl border focus:ring-2 focus:ring-[#005EB8] transition-all min-h-[100px]",
+                        darkMode 
+                          ? "bg-gray-800 border-gray-700 text-gray-100 placeholder-gray-600" 
+                          : "bg-white border-gray-200 text-gray-900 placeholder-gray-400"
+                      )}
                       placeholder="Your answer..."
                     />
                   </div>
@@ -560,7 +691,10 @@ export default function App() {
                 <div className="flex gap-4">
                   <button
                     onClick={() => setStep('input')}
-                    className="flex-1 bg-gray-100 text-gray-700 py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-gray-200 transition-all"
+                    className={cn(
+                      "flex-1 py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all",
+                      darkMode ? "bg-gray-800 text-gray-300 hover:bg-gray-700" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    )}
                   >
                     Back
                   </button>
@@ -588,12 +722,24 @@ export default function App() {
               className="space-y-8"
             >
               <div className="text-center space-y-4">
-                <div className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center mx-auto">
-                  <ShieldCheck className="text-emerald-600 w-10 h-10" />
+                <div className={cn(
+                  "w-20 h-20 rounded-full flex items-center justify-center mx-auto transition-colors",
+                  darkMode ? "bg-emerald-900/30" : "bg-emerald-100"
+                )}>
+                  <ShieldCheck className={cn(
+                    "w-10 h-10 transition-colors",
+                    darkMode ? "text-emerald-500" : "text-emerald-600"
+                  )} />
                 </div>
                 <div className="space-y-1">
-                  <h1 className="text-3xl font-bold text-gray-900">Complaint Ready for Submission</h1>
-                  <p className="text-gray-600">
+                  <h1 className={cn(
+                    "text-3xl font-bold",
+                    darkMode ? "text-gray-100" : "text-gray-900"
+                  )}>Complaint Ready for Submission</h1>
+                  <p className={cn(
+                    "transition-colors",
+                    darkMode ? "text-gray-400" : "text-gray-600"
+                  )}>
                     {data.userCodeCorrect ? (
                       data.followUpAnswers.length > 0 
                         ? "Thank you for providing additional details. You framed the ASCI code right, which is awesome. I have drafted the rest of the complaint fields for you. Please review."
@@ -607,26 +753,53 @@ export default function App() {
 
               <div className="grid md:grid-cols-3 gap-6">
                 <div className="md:col-span-2 space-y-6">
-                  <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-                      <span className="text-sm font-bold uppercase tracking-wider text-gray-500">Complaint Summary</span>
+                  <div className={cn(
+                    "rounded-2xl shadow-sm border overflow-hidden transition-colors",
+                    darkMode ? "bg-gray-900 border-gray-800" : "bg-white border-gray-200"
+                  )}>
+                    <div className={cn(
+                      "px-6 py-4 border-b flex items-center justify-between transition-colors",
+                      darkMode ? "bg-gray-800/50 border-gray-800" : "bg-gray-50 border-gray-200"
+                    )}>
+                      <span className={cn(
+                        "text-sm font-bold uppercase tracking-wider",
+                        darkMode ? "text-gray-400" : "text-gray-500"
+                      )}>Complaint Summary</span>
                       <FileText className="text-gray-400 w-5 h-5" />
                     </div>
                     <div className="p-6 space-y-4">
-                      <div className="p-4 bg-gray-50 rounded-lg border border-gray-100 italic text-gray-700">
+                      <div className={cn(
+                        "p-4 rounded-lg border italic transition-colors",
+                        darkMode ? "bg-gray-800/30 border-gray-800 text-gray-400" : "bg-gray-50 border-gray-100 text-gray-700"
+                      )}>
                         "{data.grievance}"
                       </div>
                       <div className="space-y-2">
-                        <h3 className="font-bold text-gray-900">Regulatory Translation:</h3>
-                        <p className="text-gray-600 leading-relaxed">{data.mappedCode}</p>
+                        <h3 className={cn(
+                          "font-bold",
+                          darkMode ? "text-gray-200" : "text-gray-900"
+                        )}>Regulatory Translation:</h3>
+                        <p className={cn(
+                          "leading-relaxed",
+                          darkMode ? "text-gray-400" : "text-gray-600"
+                        )}>{data.mappedCode}</p>
                       </div>
                     </div>
                   </div>
 
                   {data.formFields && (
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                      <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-                        <span className="text-sm font-bold uppercase tracking-wider text-gray-500">ASCI Form Data (Copy-Paste)</span>
+                    <div className={cn(
+                      "rounded-2xl shadow-sm border overflow-hidden transition-colors",
+                      darkMode ? "bg-gray-900 border-gray-800" : "bg-white border-gray-200"
+                    )}>
+                      <div className={cn(
+                        "px-6 py-4 border-b flex items-center justify-between transition-colors",
+                        darkMode ? "bg-gray-800/50 border-gray-800" : "bg-gray-50 border-gray-200"
+                      )}>
+                        <span className={cn(
+                          "text-sm font-bold uppercase tracking-wider",
+                          darkMode ? "text-gray-400" : "text-gray-500"
+                        )}>ASCI Form Data (Copy-Paste)</span>
                         <div className="flex items-center gap-2 text-xs text-gray-400">
                           <Info className="w-4 h-4" />
                           <span>Use these fields for the official form</span>
@@ -641,7 +814,10 @@ export default function App() {
                           <CopyField label="Where seen" value={data.formFields.adSpot} />
                           <CopyField label="Date seen" value={data.formFields.adDate} />
                         </div>
-                        <div className="space-y-4 pt-4 border-t border-gray-100">
+                        <div className={cn(
+                          "space-y-4 pt-4 border-t transition-colors",
+                          darkMode ? "border-gray-800" : "border-gray-100"
+                        )}>
                           <CopyField label="Describe the Advertisement" value={data.formFields.adDescription} />
                           <CopyField label="Objectionable Claims/Visuals" value={data.formFields.objectionableClaims} />
                         </div>
@@ -651,7 +827,10 @@ export default function App() {
                 </div>
 
                 <div className="space-y-6">
-                  <div className="bg-[#D32F2F] rounded-2xl p-6 text-white space-y-4 shadow-lg shadow-red-100">
+                  <div className={cn(
+                    "rounded-2xl p-6 text-white space-y-4 shadow-lg transition-all",
+                    darkMode ? "bg-red-900/40 border border-red-900/50 shadow-red-950/50" : "bg-[#D32F2F] shadow-red-100"
+                  )}>
                     <div className="flex items-center gap-2 text-red-100 text-xs font-bold uppercase tracking-widest">
                       <Info className="w-4 h-4" /> ASCI Code Mapping
                     </div>
@@ -668,14 +847,23 @@ export default function App() {
 
                   <button 
                     onClick={handleSubmit}
-                    className="w-full bg-gray-900 text-white py-4 rounded-xl font-bold hover:bg-[#00A651] transition-all flex items-center justify-center gap-2"
+                    className={cn(
+                      "w-full py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-2",
+                      darkMode ? "bg-gray-100 text-gray-900 hover:bg-emerald-500 hover:text-white" : "bg-gray-900 text-white hover:bg-[#00A651]"
+                    )}
                   >
                     Submit as Mapped <Send className="w-5 h-5" />
                   </button>
                   
-                  <div className="space-y-4 pt-4 border-t border-gray-200">
+                  <div className={cn(
+                    "space-y-4 pt-4 border-t transition-colors",
+                    darkMode ? "border-gray-800" : "border-gray-200"
+                  )}>
                     <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Options</p>
-                    <button onClick={reset} className="w-full text-left text-sm font-semibold text-gray-500 hover:underline flex items-center gap-2">
+                    <button onClick={reset} className={cn(
+                      "w-full text-left text-sm font-semibold hover:underline flex items-center gap-2 transition-colors",
+                      darkMode ? "text-gray-400 hover:text-gray-200" : "text-gray-500 hover:text-gray-700"
+                    )}>
                       <RefreshCcw className="w-4 h-4" /> Start New Complaint
                     </button>
                   </div>
@@ -692,20 +880,41 @@ export default function App() {
               animate={{ opacity: 1, scale: 1 }}
               className="text-center space-y-8 py-12"
             >
-              <div className="w-24 h-24 rounded-full bg-emerald-100 flex items-center justify-center mx-auto">
-                <ShieldCheck className="text-emerald-600 w-12 h-12" />
+              <div className={cn(
+                "w-24 h-24 rounded-full flex items-center justify-center mx-auto transition-colors",
+                darkMode ? "bg-emerald-900/30" : "bg-emerald-100"
+              )}>
+                <ShieldCheck className={cn(
+                  "w-12 h-12 transition-colors",
+                  darkMode ? "text-emerald-500" : "text-emerald-600"
+                )} />
               </div>
               <div className="space-y-2">
-                <h1 className="text-4xl font-bold text-gray-900">Complaint Submitted</h1>
-                <p className="text-xl text-gray-600">Your complaint has been successfully queued for review by an ASCI caseworker.</p>
+                <h1 className={cn(
+                  "text-4xl font-bold",
+                  darkMode ? "text-gray-100" : "text-gray-900"
+                )}>Complaint Submitted</h1>
+                <p className={cn(
+                  "text-xl",
+                  darkMode ? "text-gray-400" : "text-gray-600"
+                )}>Your complaint has been successfully queued for review by an ASCI caseworker.</p>
               </div>
-              <div className="bg-white rounded-2xl p-8 border border-gray-200 max-w-md mx-auto shadow-sm">
-                <p className="text-sm text-gray-500 mb-4 uppercase tracking-widest font-bold">Reference Number</p>
+              <div className={cn(
+                "rounded-2xl p-8 border max-w-md mx-auto shadow-sm transition-colors",
+                darkMode ? "bg-gray-900 border-gray-800" : "bg-white border-gray-200"
+              )}>
+                <p className={cn(
+                  "text-sm mb-4 uppercase tracking-widest font-bold",
+                  darkMode ? "text-gray-500" : "text-gray-500"
+                )}>Reference Number</p>
                 <p className="text-3xl font-mono font-bold text-[#D32F2F]">ASCI-{Math.floor(Math.random() * 1000000)}</p>
               </div>
               <button 
                 onClick={reset}
-                className="bg-gray-900 text-white px-8 py-4 rounded-xl font-bold hover:bg-[#00A651] transition-all"
+                className={cn(
+                  "px-8 py-4 rounded-xl font-bold transition-all",
+                  darkMode ? "bg-gray-100 text-gray-900 hover:bg-emerald-500 hover:text-white" : "bg-gray-900 text-white hover:bg-[#00A651]"
+                )}
               >
                 File Another Complaint
               </button>
@@ -721,19 +930,34 @@ export default function App() {
               exit={{ opacity: 0, x: -20 }}
               className="space-y-8"
             >
-              <div className="bg-red-50 border border-red-200 rounded-2xl p-8 md:p-12 space-y-6 shadow-sm">
-                <div className="flex items-center gap-4 text-red-600">
+              <div className={cn(
+                "border rounded-2xl p-8 md:p-12 space-y-6 shadow-sm transition-colors",
+                darkMode ? "bg-red-950/20 border-red-900/50" : "bg-red-50 border-red-200"
+              )}>
+                <div className={cn(
+                  "flex items-center gap-4",
+                  darkMode ? "text-red-400" : "text-red-600"
+                )}>
                   <AlertCircle className="w-10 h-10" />
-                  <h1 className="text-3xl font-bold text-red-900">Scope check failed</h1>
+                  <h1 className={cn(
+                    "text-3xl font-bold",
+                    darkMode ? "text-red-200" : "text-red-900"
+                  )}>Scope check failed</h1>
                 </div>
                 
                 <div className="space-y-4">
-                  <p className="text-xl text-red-800 leading-relaxed">
+                  <p className={cn(
+                    "text-xl leading-relaxed",
+                    darkMode ? "text-red-300" : "text-red-800"
+                  )}>
                     {error}
                   </p>
                 </div>
 
-                <div className="pt-6 flex flex-col sm:flex-row gap-4 border-t border-red-200">
+                <div className={cn(
+                  "pt-6 flex flex-col sm:flex-row gap-4 border-t",
+                  darkMode ? "border-red-900/50" : "border-red-200"
+                )}>
                   <a 
                     href="https://gama.gov.in" 
                     target="_blank" 
@@ -744,7 +968,10 @@ export default function App() {
                   </a>
                   <button 
                     onClick={reset}
-                    className="flex-1 bg-white text-gray-700 border border-gray-200 py-4 px-6 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-gray-50 transition-all"
+                    className={cn(
+                      "flex-1 py-4 px-6 rounded-xl font-bold flex items-center justify-center gap-2 transition-all",
+                      darkMode ? "bg-gray-800 text-gray-200 border border-gray-700 hover:bg-gray-700" : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
+                    )}
                   >
                     <RefreshCcw className="w-5 h-5" /> Try another complaint
                   </button>
@@ -753,7 +980,10 @@ export default function App() {
                 <div className="text-center">
                   <button 
                     onClick={() => setStep('input')}
-                    className="text-red-700 hover:text-red-900 font-semibold underline underline-offset-4"
+                    className={cn(
+                      "font-semibold underline underline-offset-4 transition-colors",
+                      darkMode ? "text-red-400 hover:text-red-300" : "text-red-700 hover:text-red-900"
+                    )}
                   >
                     Go back to main page
                   </button>
