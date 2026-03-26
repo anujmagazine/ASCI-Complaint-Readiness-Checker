@@ -307,9 +307,85 @@ export default function App() {
     );
   };
 
+  const ProgressBar = () => {
+    const steps = [
+      { id: 'input', label: 'Upload' },
+      { id: 'clarify', label: 'Clarify' },
+      { id: 'mapping', label: 'Mapping' },
+      { id: 'summary', label: 'Final Summary' }
+    ];
+
+    const getCurrentStepIndex = () => {
+      if (step === 'input') return 0;
+      if (step === 'check1' || step === 'check2') return 1;
+      if (step === 'check3') return 2;
+      if (step === 'summary') return 3;
+      return -1;
+    };
+
+    const currentIndex = getCurrentStepIndex();
+    if (currentIndex === -1) return null;
+
+    return (
+      <div className="mb-12">
+        <div className="flex items-center justify-between relative">
+          {/* Background Line */}
+          <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-200 -translate-y-1/2 z-0" />
+          
+          {/* Active Line */}
+          <motion.div 
+            initial={false}
+            animate={{ width: `${(currentIndex / (steps.length - 1)) * 100}%` }}
+            className="absolute top-1/2 left-0 h-0.5 bg-[#D32F2F] -translate-y-1/2 z-0 transition-all duration-500"
+          />
+
+          {steps.map((s, i) => {
+            const isCompleted = i < currentIndex;
+            const isActive = i === currentIndex;
+            
+            return (
+              <div key={s.id} className="relative z-10 flex flex-col items-center gap-2">
+                <motion.div 
+                  initial={false}
+                  animate={{ 
+                    backgroundColor: isCompleted || isActive ? '#D32F2F' : '#FFFFFF',
+                    borderColor: isCompleted || isActive ? '#D32F2F' : '#E5E7EB',
+                    scale: isActive ? 1.2 : 1
+                  }}
+                  className={cn(
+                    "w-10 h-10 rounded-full border-2 flex items-center justify-center transition-colors duration-300 shadow-sm",
+                    isActive ? "ring-4 ring-red-50" : ""
+                  )}
+                >
+                  {isCompleted ? (
+                    <Check className="w-5 h-5 text-white" />
+                  ) : (
+                    <span className={cn(
+                      "text-sm font-bold",
+                      isActive ? "text-white" : "text-gray-400"
+                    )}>
+                      {i + 1}
+                    </span>
+                  )}
+                </motion.div>
+                <span className={cn(
+                  "text-xs font-bold uppercase tracking-wider",
+                  isActive ? "text-[#D32F2F]" : isCompleted ? "text-gray-600" : "text-gray-400"
+                )}>
+                  {s.label}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-[#F5F5F5] font-sans text-gray-900">
       <main className="max-w-4xl mx-auto px-6 py-12">
+        <ProgressBar />
         <AnimatePresence mode="wait">
           {loading && (
             <motion.div
